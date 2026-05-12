@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}分类管理{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container container-sm">
+        <div class="admin-header">
+            <h1>分类管理</h1>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">&larr; 返回后台</a>
+        </div>
+
+        <form method="POST" class="category-form">
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label for="name">分类名称</label>
+                    <input type="text" name="name" id="name" placeholder="如：AE表达式" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">描述</label>
+                    <input type="text" name="description" id="description" placeholder="简短描述">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">添加分类</button>
+        </form>
+
+        <div class="admin-table-wrapper" style="margin-top:24px">
+            {% if categories %}
+            <table class="admin-table">
+                <thead>
+                    <tr><th>名称</th><th>Slug</th><th>描述</th><th>文章数</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                    {% for cat in categories %}
+                    <tr>
+                        <td>{{ cat.name }}</td>
+                        <td><code>{{ cat.slug }}</code></td>
+                        <td>{{ cat.description[:30] or '-' }}</td>
+                        <td>{{ post_counts.get(cat.id, 0) }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('admin.delete_category', cat_id=cat.id) }}" onsubmit="return confirm('删除分类不会删除文章，确定？')">
+                                <button type="submit" class="btn-sm btn-sm-danger">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="table-empty">暂无分类</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

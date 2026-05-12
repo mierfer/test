@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}AEN Blog — AE剪辑知识库{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">After Effects</span>
+                <br>剪辑知识库
+            </h1>
+            <p class="hero-subtitle">探索视觉特效、动态图形与影视后期的无限可能</p>
+            <form action="{{ url_for('blog.search') }}" method="GET" class="hero-search">
+                <input type="text" name="q" placeholder="搜索AE教程、技巧、插件..." class="hero-search-input">
+                <button type="submit" class="hero-search-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    搜索
+                </button>
+            </form>
+            <div class="hero-tags">
+                <span>热门：</span>
+                <a href="{{ url_for('blog.index', search='表达式') }}">表达式</a>
+                <a href="{{ url_for('blog.index', search='粒子') }}">粒子特效</a>
+                <a href="{{ url_for('blog.index', search='调色') }}">调色</a>
+                <a href="{{ url_for('blog.index', search='转场') }}">转场</a>
+                <a href="{{ url_for('blog.index', search='抠像') }}">抠像</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-shape shape-1"></div>
+            <div class="hero-shape shape-2"></div>
+            <div class="hero-shape shape-3"></div>
+            <div class="hero-timeline">
+                <div class="tl-track"></div>
+                <div class="tl-playhead"></div>
+                <div class="tl-clip" style="left:5%;width:18%"></div>
+                <div class="tl-clip" style="left:28%;width:22%"></div>
+                <div class="tl-clip" style="left:55%;width:25%"></div>
+                <div class="tl-clip" style="left:85%;width:10%"></div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-bg-glow"></div>
+</section>
+
+<!-- Featured posts -->
+{% if featured %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">精选推荐</h2>
+        <div class="featured-grid">
+            {% for post in featured %}
+            <a href="{{ url_for('blog.post_detail', slug=post.slug) }}" class="featured-card">
+                <div class="featured-image">
+                    {% if post.cover_image %}
+                    <img src="{{ post.cover_image }}" alt="{{ post.title }}" loading="lazy">
+                    {% else %}
+                    <div class="featured-placeholder">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                    </div>
+                    {% endif %}
+                    {% if post.category %}
+                    <span class="featured-badge">{{ post.category.name }}</span>
+                    {% endif %}
+                </div>
+                <div class="featured-body">
+                    <h3 class="featured-title">{{ post.title }}</h3>
+                    <p class="featured-summary">{{ post.summary[:80] or post.content[:80] }}</p>
+                    <div class="featured-meta">
+                        <span>{{ post.author.username }}</span>
+                        <span>{{ post.created_at.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Category tabs -->
+<section class="section section-categories">
+    <div class="container">
+        <div class="category-tabs">
+            <a href="{{ url_for('blog.index') }}" class="cat-tab {{ 'active' if not current_category and not current_tag else '' }}">全部</a>
+            {% for cat in categories %}
+            <a href="{{ url_for('blog.index', category=cat.slug) }}" class="cat-tab {{ 'active' if current_category == cat.slug else '' }}">{{ cat.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Post list -->
+<section class="section">
+    <div class="container">
+        {% if search %}
+        <div class="search-info">
+            <h2>搜索结果：<span>"{{ search }}"</span></h2>
+            <p>找到 {{ posts.total }} 篇文章</p>
+        </div>
+        {% else %}
+        <h2 class="section-title">
+            {{ '最新文章' if not current_category else '' }}
+        </h2>
+        {% endif %}
+
+        {% if posts.items %}
+        <div class="post-grid">
+            {% for post in posts.items %}
+            <article class="post-card">
+                <a href="{{ url_for('blog.post_detail', slug=post.slug) }}" class="post-card-image">
+                    {% if post.cover_image %}
+                    <img src="{{ post.cover_image }}" alt="{{ post.title }}" loading="lazy">
+                    {% else %}
+                    <div class="post-card-placeholder">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                    </div>
+                    {% endif %}
+                    {% if post.category %}
+                    <span class="post-category-badge">{{ post.category.name }}</span>
+                    {% endif %}
+                </a>
+                <div class="post-card-body">
+                    <h3 class="post-card-title">
+                        <a href="{{ url_for('blog.post_detail', slug=post.slug) }}">{{ post.title }}</a>
+                    </h3>
+                    <p class="post-card-summary">{{ post.summary[:100] or post.content[:100] }}</p>
+                    <div class="post-card-meta">
+                        <div class="post-card-author">
+                            <span class="avatar-xs">{{ post.author.username[0].upper() }}</span>
+                            <span>{{ post.author.username }}</span>
+                        </div>
+                        <div class="post-card-stats">
+                            <span>{{ post.created_at.strftime('%m-%d') }}</span>
+                            <span class="stat-dot">&middot;</span>
+                            <span>{{ post.views }} 阅读</span>
+                        </div>
+                    </div>
+                    {% if post.tags %}
+                    <div class="post-card-tags">
+                        {% for tag in post.tags[:3] %}
+                        <a href="{{ url_for('blog.index', tag=tag.slug) }}" class="tag-pill">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <p>暂无文章</p>
+        </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        {% if posts.pages > 1 %}
+        <div class="pagination">
+            {% if posts.has_prev %}
+            <a href="{{ url_for('blog.index', page=posts.prev_num, category=current_category, tag=current_tag, search=search) }}" class="page-btn">&larr; 上一页</a>
+            {% endif %}
+            {% for p in range(1, posts.pages + 1) %}
+                {% if p == posts.page %}
+                <span class="page-btn active">{{ p }}</span>
+                {% elif p <= 3 or p > posts.pages - 3 or (p >= posts.page - 1 and p <= posts.page + 1) %}
+                <a href="{{ url_for('blog.index', page=p, category=current_category, tag=current_tag, search=search) }}" class="page-btn">{{ p }}</a>
+                {% elif p == 4 or p == posts.pages - 3 %}
+                <span class="page-ellipsis">...</span>
+                {% endif %}
+            {% endfor %}
+            {% if posts.has_next %}
+            <a href="{{ url_for('blog.index', page=posts.next_num, category=current_category, tag=current_tag, search=search) }}" class="page-btn">下一页 &rarr;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Side info section -->
+<section class="section section-info">
+    <div class="container">
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <h3>实用教程</h3>
+                <p>从入门到精通，覆盖AE全工作流程的详细教程</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/></svg>
+                </div>
+                <h3>插件评测</h3>
+                <p>精选最实用的AE插件，助你事半功倍</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <h3>效率提升</h3>
+                <p>快捷键、脚本和表达式，解放你的创造力</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><path d="M6 19a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><path d="M17 19H7"/><path d="M7 19l-2-7h14l-2 7"/><path d="M5 12h14l-1-4.35a2 2 0 0 0-1.96-1.65H7.96a2 2 0 0 0-1.96 1.65L5 12z"/></svg>
+                </div>
+                <h3>模板资源</h3>
+                <p>高质量AE模板分享，快速出片不是梦</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

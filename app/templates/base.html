@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AEN Blog{% endblock %} — AE剪辑知识库</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236c5ce7'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'>A</text></svg>">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-inner">
+            <a href="{{ url_for('blog.index') }}" class="logo">
+                <span class="logo-icon">A</span>
+                <span class="logo-text">AEN</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{{ url_for('blog.index') }}" class="nav-link">首页</a></li>
+                {% set nav_categories = get_nav_categories() %}
+                {% for cat in nav_categories %}
+                <li><a href="{{ url_for('blog.category', slug=cat.slug) }}" class="nav-link">{{ cat.name }}</a></li>
+                {% endfor %}
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <li><a href="{{ url_for('admin.dashboard') }}" class="nav-link nav-admin">管理</a></li>
+                {% endif %}
+            </ul>
+            <div class="nav-actions">
+                <button class="search-toggle" id="searchToggle" aria-label="搜索">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+                {% if current_user.is_authenticated %}
+                <div class="user-menu">
+                    <button class="user-toggle" id="userToggle">
+                        <span class="avatar-sm">{{ current_user.username[0].upper() }}</span>
+                        <span class="user-name">{{ current_user.username }}</span>
+                    </button>
+                    <div class="dropdown" id="userDropdown">
+                        <a href="{{ url_for('auth.logout') }}" class="dropdown-item">退出登录</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">登录</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">注册</a>
+                {% endif %}
+                <button class="menu-toggle" id="menuToggle" aria-label="菜单">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-inner">
+            <form action="{{ url_for('blog.search') }}" method="GET" class="search-form-large">
+                <input type="text" name="q" placeholder="搜索文章..." autocomplete="off" class="search-input-large">
+                <button type="submit" class="search-submit">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+            </form>
+            <button class="search-close" id="searchClose">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" data-auto-dismiss="true">
+            <span>{{ message }}</span>
+            <button class="flash-close">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo" style="margin-bottom:12px">
+                        <span class="logo-icon">A</span>
+                        <span class="logo-text">AEN</span>
+                    </div>
+                    <p class="footer-desc">专注于 After Effects 剪辑、特效制作与动态图形设计的知识分享平台。</p>
+                </div>
+                <div class="footer-links">
+                    <h4>快速链接</h4>
+                    <a href="{{ url_for('blog.index') }}">首页</a>
+                    <a href="{{ url_for('blog.index', category='ae-basics') }}">AE基础教程</a>
+                    <a href="{{ url_for('blog.index', category='vfx') }}">特效制作</a>
+                    <a href="{{ url_for('blog.index', category='motion-graphics') }}">MG动画</a>
+                </div>
+                <div class="footer-links">
+                    <h4>资源</h4>
+                    <a href="{{ url_for('blog.index', category='plugins') }}">插件推荐</a>
+                    <a href="{{ url_for('blog.index', category='templates') }}">模板分享</a>
+                    <a href="{{ url_for('blog.index', category='industry-news') }}">行业资讯</a>
+                </div>
+                <div class="footer-links">
+                    <h4>关于</h4>
+                    <p class="footer-text">AEN Blog © 2026</p>
+                    <p class="footer-text">用热爱创造视觉奇迹</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 AEN Blog — After Effects 剪辑知识库</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}注册{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <a href="{{ url_for('blog.index') }}" class="logo" style="justify-content:center;margin-bottom:16px">
+                <span class="logo-icon">A</span>
+                <span class="logo-text">AEN</span>
+            </a>
+            <h2>创建账号</h2>
+            <p>加入AEN剪辑社区</p>
+        </div>
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" name="username" id="username" placeholder="2-64个字符" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" name="email" id="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" name="password" id="password" placeholder="至少6位" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm">确认密码</label>
+                <input type="password" name="confirm" id="confirm" placeholder="再次输入密码" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">注册</button>
+        </form>
+        <div class="auth-footer">
+            <p>已有账号？<a href="{{ url_for('auth.login') }}">立即登录</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
